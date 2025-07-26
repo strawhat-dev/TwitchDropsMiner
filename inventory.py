@@ -12,7 +12,7 @@ from datetime import datetime, timedelta, timezone
 from translate import _
 from channel import Channel
 from exceptions import GQLException
-from constants import GQL_OPERATIONS, URLType
+from constants import GQL_OPERATIONS, URLType, PriorityMode
 from utils import timestamp, invalidate_cache, Game
 
 if TYPE_CHECKING:
@@ -376,7 +376,11 @@ class DropsCampaign:
 
     @property
     def eligible(self) -> bool:
-        return self.linked or self.has_badge_or_emote
+        return (
+            self.linked or self.has_badge_or_emote or (
+                self._twitch.settings.priority_mode is PriorityMode.PRIORITY_ONLY and self.game.name in self._twitch.settings.priority
+            )
+        )
 
     @cached_property
     def has_badge_or_emote(self) -> bool:
